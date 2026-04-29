@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Menu, Search, Plus, Smartphone, Layout, Bell, Settings, 
-  CheckSquare
-} from "lucide-react";
-import Sidebar from "../components/Sidebar"; // Check karein path sahi ho
+import {
+  Menu, Search, Plus, Layout, Bell, Settings} from "lucide-react";
+//import Sidebar from "../components/Sidebar"; // Check karein path sahi ho
+import { api } from "../api/api";
+import AddTaskModal from "../components/AddTaskModal";
+import StatsCard from "../components/StatsCard";
+import TaskItem from "../components/TaskItem";
+import { useNavigate, useOutletContext } from "react-router";
+import ActivitySection from "../components/activity/ActivitySection";
 
 const container = {
   hidden: {},
@@ -19,23 +23,46 @@ const item = {
 };
 
 const Dashboard = () => {
-  const [open, setOpen] = useState(false);
+// const [open, setOpen] = useState(false);
+  const [tasks, setTasks] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate()
+  const { setOpen } = useOutletContext<{ setOpen: (val: boolean) => void }>();
+
+   const fetchTasks = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await api.get("/api/tasks", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setTasks(res.data); // Data save ho gaya
+      } catch (err) {
+        console.log("Error fetching tasks:", err);
+      }
+    };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  // Return se pehle ye calculations add karein
+  const completedTasks = tasks.filter((t: any) => t.status === "completed").length;
 
   return (
     <div className="flex min-h-screen bg-gray-950 text-white overflow-hidden">
-      
+
       {/* 1. Sidebar Component (Mobile & Desktop handle karega) */}
-      <Sidebar open={open} setOpen={setOpen} />
+      {/* <Sidebar open={open} setOpen={setOpen} /> */}
 
       {/* 2. Main Content Area */}
       <main className="flex-1 h-screen overflow-y-auto p-4 md:p-8 space-y-8 custom-scrollbar">
-        
+
         {/* --- HEADER --- */}
         <header className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Menu 
-              className="md:hidden cursor-pointer text-gray-400 hover:text-white" 
-              onClick={() => setOpen(true)} 
+            <Menu
+              className="md:hidden cursor-pointer text-gray-400 hover:text-white"
+              onClick={() => setOpen(true)}
             />
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
@@ -52,7 +79,7 @@ const Dashboard = () => {
                 className="w-48 lg:w-80 pl-10 pr-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
               />
             </div>
-            
+
             <button className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-gray-400 hover:text-white relative">
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-900"></span>
@@ -61,24 +88,44 @@ const Dashboard = () => {
         </header>
 
         {/* --- STATS SECTION --- */}
-        <motion.div 
-          variants={container} 
-          initial="hidden" 
-          animate="show" 
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          <StatsCard title="Assignee Tasks" value="05" color="from-purple-600 to-pink-500" />
-          <StatsCard title="Total Tasks" value="45" color="bg-indigo-600" />
-          <StatsCard title="Overdue" value="12" color="bg-rose-500" />
-          <StatsCard title="Completed" value="38" color="bg-emerald-500" />
+          <StatsCard
+            title="Assignee Tasks"
+            value="05"
+            color="from-purple-600 to-pink-500"
+            onClick={() => navigate('/tasks/assignee')}
+          />
+          <StatsCard
+            title="Total Tasks"
+            value={tasks.length}
+            color="bg-indigo-600"
+            onClick={() => navigate('/tasks/all')}
+          />
+          <StatsCard
+            title="Overdue"
+            value="12"
+            color="bg-rose-500"
+            onClick={() => navigate('/tasks/overdue')}
+          />
+          <StatsCard
+            title="Completed"
+            value={completedTasks}
+            color="bg-emerald-500"
+            onClick={() => navigate('/tasks/completed')}
+          />
         </motion.div>
 
         {/* --- BOTTOM GRID (Tasks & Right Panel) --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Left Column (Welcome & Task List) */}
           <div className="lg:col-span-2 space-y-8">
-            
+
             {/* Welcome Banner */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -98,7 +145,7 @@ const Dashboard = () => {
             </motion.div>
 
             {/* Task List Container */}
-            <motion.div 
+            <motion.div
               variants={container}
               initial="hidden"
               animate="show"
@@ -110,17 +157,34 @@ const Dashboard = () => {
               </div>
 
               <div className="space-y-4">
-                <TaskItem title="Saadi Codes Portfolio" date="Apr 15" icon={Layout} color="bg-blue-500" />
-                <TaskItem title="Task Orbit Backend" date="Apr 18" icon={Smartphone} color="bg-purple-500" />
-                <TaskItem title="SMIT Assignment" date="Apr 20" icon={CheckSquare} color="bg-emerald-500" />
+                {tasks.length > 0 ? (
+                  tasks.map((task: any) => (
+                    <TaskItem
+                      key={task._id} // MongoDB ka unique ID use karein
+                      title={task.title}
+                      date={new Date(task.createdAt).toLocaleDateString()}
+                      icon={Layout}
+                      color="bg-blue-500" onEdit={function (): void {
+                        throw new Error("Function not implemented.");
+                      } } onDelete={function (): void {
+                        throw new Error("Function not implemented.");
+                      } }                    />
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center">No tasks found</p>
+                )}
               </div>
+
             </motion.div>
           </div>
 
           {/* Right Column (Actions & Users) */}
           <div className="space-y-6">
+            <ActivitySection />
             <div className="grid grid-cols-1 gap-4">
-               <button className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl flex items-center justify-center gap-3 font-semibold transition-all group">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl flex items-center justify-center gap-3 font-semibold transition-all group">
                 <Plus size={20} className="group-hover:rotate-90 transition-transform" /> New Task
               </button>
               <button className="w-full bg-slate-800 hover:bg-slate-700 py-4 rounded-2xl flex items-center justify-center gap-3 font-semibold transition-all">
@@ -148,45 +212,31 @@ const Dashboard = () => {
 
         </div>
       </main>
+      <AddTaskModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onAdd={async (title: string) => {
+         try {
+      const token = localStorage.getItem("token");
+      
+      // 1. Task POST request bhejein
+      await api.post("/api/tasks", { title }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // 2. Refresh karein (Naya data fetch karein)
+      fetchTasks(); 
+
+      // 3. Modal band karein
+      setIsModalOpen(false);
+      
+    } catch (error) {
+      console.error("Error adding task:", error);
+      alert("Failed to add task");
+    }
+        }} 
+      />
     </div>
   );
 };
-
-// --- SUB-COMPONENTS ---
-
-const StatsCard = ({ title, value, color }: any) => (
-  <motion.div 
-    variants={item} 
-    whileHover={{ y: -5 }}
-    className={`p-6 rounded-3xl ${color.includes('from') ? `bg-gradient-to-r ${color}` : color} shadow-lg`}
-  >
-    <p className="text-sm font-medium opacity-80 uppercase tracking-wider">{title}</p>
-    <div className="flex items-end justify-between mt-2">
-      <h2 className="text-4xl font-bold">{value}</h2>
-      <div className="h-2 w-16 bg-white/20 rounded-full overflow-hidden">
-        <div className="h-full bg-white/40 w-2/3" />
-      </div>
-    </div>
-  </motion.div>
-);
-
-const TaskItem = ({ title, date, icon: Icon, color }: any) => (
-  <motion.div
-    variants={item}
-    whileHover={{ x: 10 }}
-    className="flex items-center justify-between p-4 bg-slate-950/50 hover:bg-slate-800 rounded-2xl border border-slate-800/50 cursor-pointer transition-all"
-  >
-    <div className="flex items-center gap-4">
-      <div className={`p-3 rounded-xl ${color} shadow-lg`}>
-        <Icon size={20} className="text-white" />
-      </div>
-      <div>
-        <p className="font-medium">{title}</p>
-        <p className="text-xs text-gray-500">Deadline: {date}</p>
-      </div>
-    </div>
-    <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
-  </motion.div>
-);
-
 export default Dashboard;

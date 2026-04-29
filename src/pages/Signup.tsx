@@ -29,7 +29,7 @@ const Signup = () => {
     }
     try {
       const response = await api.post("/api/auth/signup", payload);
-      const token = response.data.token
+      const token = response.data.newUser.token
       localStorage.setItem("token", token)
 
       message.success("Account created successfully")
@@ -60,7 +60,7 @@ const Signup = () => {
     visible: { opacity: 1, y: 0 }
   };
 
-const floatingVariants: Variants = { // Yahan TypeScript ka Type specify kiya hai
+const floatingVariants: Variants = { 
   animate: {
     y: [0, -20, 0],
     rotate: [0, 5, -5, 0],
@@ -74,14 +74,11 @@ const floatingVariants: Variants = { // Yahan TypeScript ka Type specify kiya ha
       {/* MAIN GRID */}
       <div className="w-full min-h-screen grid lg:grid-cols-2">
 
-        {/* ================= LEFT SIDE (VISUAL & BRANDING) ================= */}
         <div className="hidden lg:flex relative flex-col items-center justify-center bg-[#020617] p-12 overflow-hidden border-r border-slate-800/50">
-
-          {/* Glowing Background Orbs */}
+          
           <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]" />
           <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px]" />
 
-          {/* Animated 3D-Like Shape (Torus) */}
           <motion.div
             variants={floatingVariants}
             animate="animate"
