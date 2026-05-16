@@ -1,5 +1,11 @@
 import { motion } from "framer-motion";
-import { type LucideIcon, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import {
+  type LucideIcon,
+  MoreVertical,
+  Edit2,
+  Trash2,
+  CheckCircle
+} from "lucide-react";
 import { useState } from "react";
 
 interface TaskItemProps {
@@ -9,14 +15,26 @@ interface TaskItemProps {
   color: string;
   onEdit: () => void;
   onDelete: () => void;
+  onComplete: () => void;
+  isCompleted: boolean;
+  hideMenu?: boolean;
 }
-
 const item = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0 },
 };
 
-const TaskItem = ({ title, date, icon: Icon, color, onEdit, onDelete }: TaskItemProps) => {
+const TaskItem = ({
+  title,
+  date,
+  icon: Icon,
+  color,
+  onEdit,
+  onDelete,
+  onComplete,
+  isCompleted,
+  hideMenu
+}: TaskItemProps) => {
   const [showMenu, setShowMenu] = useState(false);
 
   return (
@@ -34,23 +52,50 @@ const TaskItem = ({ title, date, icon: Icon, color, onEdit, onDelete }: TaskItem
           <p className="text-xs text-gray-500">Deadline: {date}</p>
         </div>
       </div>
+      {!hideMenu && (
+        <div className="relative">
 
-      {/* Menu Icon */}
-      <div className="relative">
-        <button 
-          onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }} 
-          className="p-2 hover:bg-slate-800 rounded-full transition-colors"
-        >
-          <MoreVertical size={20} className="text-gray-400" />
-        </button>
-        
-        {showMenu && (
-          <div className="absolute right-0 top-8 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2 w-32 z-20" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => { onEdit(); setShowMenu(false); }} className="flex items-center gap-2 w-full p-2 hover:bg-slate-700 rounded text-sm"><Edit2 size={14}/> Edit</button>
-            <button onClick={() => { onDelete(); setShowMenu(false); }} className="flex items-center gap-2 w-full p-2 hover:bg-slate-700 rounded text-sm text-red-400"><Trash2 size={14}/> Delete</button>
-          </div>
-        )}
-      </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+            className="p-2 hover:bg-slate-800 rounded-full transition-colors"
+          >
+            <MoreVertical size={20} className="text-gray-400" />
+          </button>
+
+          {showMenu && (
+            <div className="absolute right-0 top-8 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2 w-32 z-20" onClick={(e) => e.stopPropagation()}>
+
+              <button
+                onClick={() => { onEdit(); setShowMenu(false); }}
+                className="flex items-center gap-2 w-full p-2 hover:bg-slate-700 rounded text-sm"
+              >
+                <Edit2 size={14} /> Edit
+              </button>
+
+              {!isCompleted && (
+                <button
+                  onClick={() => {
+                    onComplete();
+                    setShowMenu(false);
+                  }}
+                  className="flex items-center gap-2 w-full p-2 hover:bg-slate-700 rounded text-sm text-emerald-400"
+                >
+                  <CheckCircle size={14} />
+                  Complete
+                </button>
+              )}
+
+              <button
+                onClick={() => { onDelete(); setShowMenu(false); }}
+                className="flex items-center gap-2 w-full p-2 hover:bg-slate-700 rounded text-sm text-red-400"
+              >
+                <Trash2 size={14} /> Delete
+              </button>
+
+            </div>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 };

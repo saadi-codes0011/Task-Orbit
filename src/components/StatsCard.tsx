@@ -4,7 +4,7 @@ interface StatsCardProps {
   title: string;
   value: string | number;
   color: string;
-  onClick?: () => void; // Click logic ke liye
+  onClick?: () => void; 
 }
 
 const item = {

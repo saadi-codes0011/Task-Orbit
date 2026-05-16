@@ -11,7 +11,7 @@ const getIcon = (action: string) => {
 };
 
 const ActivityItem = ({ log }: any) => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     className="flex items-center gap-3 p-3 border-b border-slate-800 last:border-none"
@@ -21,10 +21,19 @@ const ActivityItem = ({ log }: any) => (
     </div>
     <div className="flex-1">
       <p className="text-sm text-gray-300">
-        <span className="font-semibold text-white">{log.user || "You"}</span> {log.action} task 
-        <span className="text-blue-400"> {log.taskTitle}</span>
+        <span className="font-semibold text-white">
+          {log.user || "You"}
+        </span>{" "}
+
+        {log.action || "performed an action"}{" "}
+
+        <span className="text-blue-400">
+          {log.taskTitle || "Untitled Task"}
+        </span>
       </p>
-      <p className="text-[10px] text-gray-500">{new Date(log.timestamp).toLocaleTimeString()}</p>
+      <p className="text-[10px] text-gray-500">{log.timestamp
+        ? new Date(log.timestamp).toLocaleTimeString()
+        : "Just now"}</p>
     </div>
   </motion.div>
 );

@@ -4,11 +4,14 @@ import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import ProtectedRoutes from "../components/ProtectedRoute";
 import PublicRoutes from "../components/PublicRoutes";
-import Messages from "../pages/Messages";
 import MyTasks from "../pages/MyTasks";
 import Layout from "../components/Layout";
 import Projects from "../pages/Projects";
 import TasksPage from "../pages/TasksPage";
+import Profile from "../pages/Profile";
+import ProfileSettings from "../pages/ProfileSettings";
+import Activity from "../pages/Activity";
+import NotFound from "../pages/Notfound";
 
 export default function AppRouter() {
   return (
@@ -24,16 +27,15 @@ export default function AppRouter() {
         <Route element={<ProtectedRoutes />}>
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/Messages" element={<Messages />} />
-            <Route path="/Mytask" element={<MyTasks />} />
-            <Route path="/Projects" element={<Projects />} />
-            // Router mein ye add karein
-           <Route path="/tasks/:status" element={<TasksPage />} />
+            <Route path="/activity" element={<Activity />} />
+            <Route path="/mytask" element={<MyTasks />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/tasks/:status" element={<TasksPage />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile-settings" element={<ProfileSettings />} />
           </Route>
         </Route>
-
-        {/* 404 Page (Optional): Agar koi galat URL dale */}
-        <Route path="*" element={<div className="text-white text-center mt-20">404 - Orbit Not Found</div>} />
+        <Route path="*" element={<NotFound/>} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, Clock, Tag } from "lucide-react";
+import { X, Calendar, Tag } from "lucide-react";
 
 const TaskDetailDrawer = ({ task, isOpen, onClose }: any) => {
   if (!task) return null;
@@ -8,7 +8,6 @@ const TaskDetailDrawer = ({ task, isOpen, onClose }: any) => {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -17,7 +16,6 @@ const TaskDetailDrawer = ({ task, isOpen, onClose }: any) => {
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           />
 
-          {/* Drawer Panel */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
